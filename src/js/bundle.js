@@ -1,3 +1,67 @@
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+'use strict';
+
+var PlayScene = require('./play_scene.js');
+
+var BootScene = 
+{
+  preload: function ()
+   {
+    
+  },
+
+  create: function () 
+  {
+    this.game.state.start('preloader');
+  }
+};
+
+
+var PreloaderScene = 
+{
+  preload: function () 
+  {
+    this.game.load.baseURL = "https://ramonarj.github.io/PVLI---Arkanoid/src/";
+    
+     this.game.load.crossOrigin = 'anonymous';
+    //Fondo
+    this.game.stage.backgroundColor = '#000000';
+
+    // TODO: load here the assets for the game
+    //Cargamos los assets del juego
+    this.game.load.image('logo', 'images/phaser.png');
+    this.game.load.image('player', 'images/Player.png');
+    this.game.load.image('background', 'images/Fondo.png');
+    this.game.load.image('ball', 'images/Pelota.png');
+    this.game.load.image('pared', 'images/pared.png');
+    this.game.load.image('techo', 'images/techo.png');
+    this.game.load.image('ladrillo', 'images/ladrillo.png');
+    this.game.load.image('ladrilloBueno', 'images/ladrilloBueno.png');
+    this.game.load.image('ladrilloPlata', 'images/ladrilloPlata.png');
+    this.game.load.image('ladrilloOro', 'images/ladrilloOro.png');
+    this.game.load.image('bullet', 'images/bullet pair.png');
+    this.game.load.image('powerUp1', 'images/powerUp1.png');
+  },
+
+  create: function () 
+  {
+    this.game.state.start('play');
+  }
+};
+
+
+window.onload = function ()
+ {
+  var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game');
+
+  game.state.add('boot', BootScene);
+  game.state.add('preloader', PreloaderScene);
+  game.state.add('play', PlayScene);
+
+  game.state.start('boot');
+};
+
+},{"./play_scene.js":2}],2:[function(require,module,exports){
 'use strict';
 
 var player;
@@ -11,9 +75,6 @@ var walls;
 var powerUps;
 var powerUp;
 var NUM_POWERUPS = 7;
-var MAX_VELOCITY = 600;
-var NUM_ROWS = 6;
-var NUM_COLS = 11;
 
 var PlayScene =
  {
@@ -25,24 +86,23 @@ var PlayScene =
 
     //Añadimos las variables
     //1.Fondo
-    fondo = new Phaser.Image(this.game, 125, 20, 'background');
-    fondo.scale.setTo(2.75,2.5);
+    fondo = new Phaser.Image(this.game, 150, 20, 'background');
+    fondo.scale.setTo(2.5,2.5);
     this.game.world.addChild(fondo);
 
     //2.Pelota
-    var playerPos = new Par(350, 525);
-    var ballPos = new Par(playerPos._x, playerPos._y - 12);
-    var ballVel = new Par(166,-250);
-    ball=new Ball(this.game, ballPos, 'ball', 'sound', 1, ballVel);
-    ball.scale.setTo(1.7,1.7);
+    var playerPos = new Par(350, 520);
+    var ballVel = new Par(-200,-200);
+    ball=new Ball(this.game, playerPos, 'ball', 'sound', 1, ballVel);
+    ball.scale.setTo(2,2);
     this.game.world.addChild(ball);
 
     //3.Paredes y techo (grupo walls)
     walls = this.game.add.physicsGroup();
 
     var techo = new Phaser.Sprite(this.game, 80, 0, 'techo'); //Creamos
-    var pared1 = new Phaser.Sprite(this.game, 108, 35, 'pared');
-    var pared2 = new Phaser.Sprite(this.game, 633, 35, 'pared');
+    var pared1 = new Phaser.Sprite(this.game, 131, 35, 'pared');
+    var pared2 = new Phaser.Sprite(this.game, 612, 35, 'pared');
     techo.scale.setTo(0.8,0.2); //Escalamos
     pared1.scale.setTo(0.2,0.8);
     pared2.scale.setTo(0.2,0.8);
@@ -60,19 +120,18 @@ var PlayScene =
     bricks = this.game.add.physicsGroup();
     bricks.classType = Destroyable;
     
-    var width = (rightLimit-leftLimit) / NUM_COLS;
-    for(var i = 0; i < NUM_ROWS; i++)
+    for(var i = leftLimit + 15; i < rightLimit - 30; i+=60)
     {
-        for(var j = 0; j < NUM_COLS; j++)
+        for(var j = 100; j < 250; j+=30)
         {
             //Posición
-            var pos= new Par(leftLimit + (j*width), 100 + (i*21));
+            var pos= new Par(i, j);
 
             //Tipo de ladrillo
             var lad;
             var rnd = Math.random();
-            var silverChance= 1/5;
-            var goldChance = 1/10;
+            var silverChance= 1/4;
+            var goldChance = 1/8;
 
             if(rnd<goldChance)
               lad = new SoundSource(this.game, pos, 'ladrilloOro', 'sound'); 
@@ -82,7 +141,7 @@ var PlayScene =
               lad = new Destroyable(this.game, pos, 'ladrilloBueno', 'sound', 1); 
 
             //Lo escalamos y añadimos al grupo
-            lad.scale.setTo(2.77,2.7);
+            lad.scale.setTo(3.5,3.5);
             bricks.add(lad);
         }
     }
@@ -103,11 +162,9 @@ var PlayScene =
     playerWeapon.bulletSpeed = 600; //Velocidad
     playerWeapon.fireRate = 500; //FireRate
 
-
-
     //Jugador
     var playerVel = new Par(0,0);
-    player = new Player(this.game, playerPos, 'player', 'sound', 3, playerVel, cursors, playerWeapon, leftLimit, rightLimit, ball);
+    player = new Player(this.game, playerPos, 'player', 'sound', 3, playerVel, cursors, playerWeapon, leftLimit, rightLimit);
     player.scale.setTo(2.5, 2.5);
     this.game.world.addChild(player);
     this.game.physics.enable([player,ball], Phaser.Physics.ARCADE);
@@ -117,11 +174,11 @@ var PlayScene =
     //PowerUps
     powerUps = this.game.add.physicsGroup();
     powerUps.classType = PowerUp;
+    
 
     //Cosas de la pelota
     ball.body.velocity.setTo(ball._velocity._x, ball._velocity._y); //Físicas de la pelota
     ball.body.bounce.setTo(1, 1); //ESTO SIRVE PARA HACER QUE ACELERE
-    ball.attach(); //La pegamos al jugador
   },
   
 
@@ -139,6 +196,7 @@ var PlayScene =
 
     //Colisiones del jugador
     this.game.physics.arcade.overlap(player, powerUps, this.takePowerUp, null, this);
+
   },
 
   //FUNCIONES AUXILIARES
@@ -190,19 +248,17 @@ var PlayScene =
     if(Object.getPrototypeOf(obj).hasOwnProperty('takeDamage'))
        obj.takeDamage(this);
 
-   bullet.kill(); //Destruimos la bala
+
+   bullet.kill();
   },
 
   //Detecta las colisones con la pelota
   ballCollisions: function(ball, obj)
   {
-      if(!ball.isAttached())
-      {
-        this.game.physics.arcade.collide(ball, obj);
-        
-       //La pelota rebota en algo
-       ball.bounce(obj, this);
-      }
+    this.game.physics.arcade.collide(ball, obj);
+      
+    //La pelota rebota en algo
+     ball.bounce(obj, this);
   }
 };
 
@@ -266,7 +322,6 @@ Destroyable.prototype.takeDamage = function (playscene) //Quita una vida
         //Si es un ladrillo, puede dropear power-ups
         if(this.constructor === Destroyable)
             playscene.dropPowerUp(this);
-            
         //Se destruye
         this.destroy();
     }
@@ -321,7 +376,7 @@ Enemy.prototype.pathfinding = function() //Se mueve con "pathfinding"
 
 /////////////////////////////////////////
 //2.2.1.2.CLASE JUGADOR 
-function Player(game, position, sprite, sound, lives, velocity, cursors, playerWeapon, leftLimit, rightLimit, ball)
+function Player(game, position, sprite, sound, lives, velocity, cursors, playerWeapon, leftLimit, rightLimit)
 {
     Movable.apply(this, [game, position, sprite, sound, lives, velocity]);
     
@@ -334,7 +389,6 @@ function Player(game, position, sprite, sound, lives, velocity, cursors, playerW
     this._playerWeapon.trackSprite(this, 0, 0);
     this._leftLimit = leftLimit;
     this._rightLimit = rightLimit;
-    this._ball = ball;
 }
 
 Player.prototype = Object.create(Movable.prototype);
@@ -343,29 +397,21 @@ Player.prototype.constructor = Player;
 //Funciones de jugador
 Player.prototype.readInput = function() //Mueve el jugador a la izquierda
 {
-    var delta = this.x;
     //Comprobación de cursores de Phaser
     if (this._cursors.left.isDown && this.x >  this._leftLimit + this.offsetX)
     {
-        this.x -= 6.5;
+        this.x -= 5;
     }
     
     else if (this._cursors.right.isDown && this.x < this._rightLimit - this.offsetX)
     {
-        this.x += 6.5;
+        this.x += 5;
     }
 
     if(this._fireButton.isDown)
     {
         this._playerWeapon.fire();
-        if(this._ball.isAttached())
-           this._ball.throw();
     }
-
-    //La pelota es hija por programación
-    delta-=this.x;
-    if(this._ball.isAttached())
-        this._ball.x-=delta;
 }
 
 Player.prototype.update = function() //Update
@@ -386,7 +432,6 @@ Player.prototype.getAnchor = function (i)
 function Ball(game, position, sprite, sound, lives, velocity)
 {
     Movable.apply(this, [game, position, sprite, sound, lives, velocity]);
-    this._attached = true; 
 }
 
 Ball.prototype = Object.create(Movable.prototype);
@@ -395,58 +440,27 @@ Ball.prototype.constructor = Ball;
 //Funciones de pelota
 Ball.prototype.bounce = function(obj, playscene) //Rebota en un objeto "obj2"
 {
-    var angle = Math.atan(this.body.velocity.y / this.body.velocity.x); //Ángulo después de rebotar
-    var v = this.body.velocity.x / Math.cos(angle); //Velocidad absoluta
 
     //Jugador (rebota)
     if(Object.getPrototypeOf(obj).hasOwnProperty('readInput'))
     {
+        //Cambio ligero de dirección
+        var angulo = this.game.rnd.integerInRange(-20, 20);
+        if(this.body.velocity.y + angulo > 0)
+        this.body.velocity.y += angulo;
+        if(this.body.velocity.x < 0)
+           this.body.velocity.x -= angulo;
+        else
+          this.body.velocity.x += angulo;
+
         //Rebote en lado contrario al que se mueve la pelota
         if((this.x > obj.x && this.body.velocity.x < 0) || (this.x < obj.x && this.body.velocity.x > 0))
             this.body.velocity.x = -this.body.velocity.x;
     }
 
-    //Ladrillos o paredes
-    else if (obj.hasOwnProperty('_sound'))
-    {
-        //Aceleramos la pelota
-        if(Math.max(v, -v) < MAX_VELOCITY)
-        {
-          if(v<0)
-             v-=10;
-          else
-             v+=10;
-          this.body.velocity.x = v * Math.cos(angle);
-          this.body.velocity.y = v * Math.sin(angle);
-        }
-
-        //Para los ladrillos destruibles
-        if(Object.getPrototypeOf(obj).hasOwnProperty('takeDamage'))
-            obj.takeDamage(playscene);
-    }
-
-    //Actualizamos la velocidad de nuestra jerarquía
-    this._velocity._x = this.body.velocity.x;
-    this._velocity._y = this.body.velocity.y;
-}
-
-Ball.prototype.isAttached = function()
-{
-    return this._attached;
-}
-
-Ball.prototype.throw = function()
-{
-    this._attached=false;
-    this.body.velocity.x = this._velocity._x;
-    this.body.velocity.y = this._velocity._y;
-}
-
-Ball.prototype.attach= function()
-{
-    this._attached = true;
-    this.body.velocity.x = 0;
-    this.body.velocity.y = 0;
+    //Ladrillos (les quita vida)
+    else if(obj.constructor === Destroyable)
+        obj.takeDamage(playscene);
 }
 
 /////////////////////////////////////////
@@ -468,3 +482,5 @@ PowerUp.prototype.update = function()
 
 }
 
+
+},{}]},{},[1]);
