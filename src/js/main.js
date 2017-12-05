@@ -2,13 +2,11 @@
 
 var PlayScene = require('./play_scene.js');
 
-
 var BootScene = 
 {
   preload: function ()
    {
-    // load here assets required for the loading screen
-    this.game.load.image('preloader_bar', 'images/preloader_bar.png');
+    
   },
 
   create: function () 
@@ -22,11 +20,11 @@ var PreloaderScene =
 {
   preload: function () 
   {
+    this.game.load.baseURL = "https://ramonarj.github.io/PVLI---Arkanoid/src/";
+    
+     this.game.load.crossOrigin = 'anonymous';
     //Fondo
     this.game.stage.backgroundColor = '#000000';
-    this.loadingBar = this.game.add.sprite(0, 240, 'preloader_bar');
-    this.loadingBar.anchor.setTo(0, 0.5);
-    this.load.setPreloadSprite(this.loadingBar);
 
     // TODO: load here the assets for the game
     //Cargamos los assets del juego
@@ -41,7 +39,10 @@ var PreloaderScene =
     this.game.load.image('ladrilloPlata', 'images/ladrilloPlata.png');
     this.game.load.image('ladrilloOro', 'images/ladrilloOro.png');
     this.game.load.image('bullet', 'images/bullet pair.png');
-    this.game.load.image('powerUp1', 'images/powerUp1.png');
+   // this.game.load.image('powerUp0', 'images/powerUpTest.png');
+
+   // Spritesheets: 'key', 'ruta', 'ancho de cada frame (en px)', 'alto de cada frame (en px)'
+    this.game.load.spritesheet('powerUp0', 'images/powerUp4.png', 16, 7);
   },
 
   create: function () 
